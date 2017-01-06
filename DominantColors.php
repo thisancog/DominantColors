@@ -1,7 +1,7 @@
 <?php
 
 /**
-	* DominantColor
+	* DominantColors
 	*
 	* MIT License
 	* 
