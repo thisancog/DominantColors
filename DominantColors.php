@@ -31,6 +31,8 @@
 	*
 	* initialize DominantColors with image path and settings,
 	* retrieve dominant colors by calling getDominantColors() on object
+	* within Wordpress you may also call get_dominant_colors($attachment_id, $settings)
+	* for usage within Wordpress, find description at the end of this file
 	*
 	* @requires PHP GD library
 	* 
