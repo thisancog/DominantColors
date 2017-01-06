@@ -317,7 +317,7 @@ class DominantColors {
 
 			usort($clusters, function($a, $b) {
 				$sizea = count($a[1]);
-				$sizeb = count($b[1])
+				$sizeb = count($b[1]);
 				if ($sizea == $sizeb) {
 					return 0;
 				}
