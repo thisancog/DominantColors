@@ -7,6 +7,6 @@ Requires GD for PHP (which almost all systems will already have installed).
 ### Possible future improvements
 
 - [x] add Wordpress wrapper function
-- [ ] add more detailled description
+- [ ] add more detailed description
 - [ ] switch from RGB to LAB color space for results closer to human perception, include as option
 - [ ] accelerate with triangular equation
