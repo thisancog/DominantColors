@@ -35,35 +35,39 @@
 	* @requires PHP GD library
 	* 
 	* @param $imgPath (string) image to be analyzed, if not given, getDominantColors will result in FALSE
-	*						   valid file types include bmp, gif, jpeg, png, xbm, xpm, wbmp, webp
-	*						   the software assumes a correct file extension (required)
+	*				valid file types include bmp, gif, jpeg, png, xbm, xpm, wbmp, webp
+	*				the software assumes a correct file extension (required)
 	* @param $settings (array) settings (optional), including:
-	*			colorsNum (int)    number of colors to retrieve
-	*							   default: 5
-	*			clustersNum (int)  number of clusters to form (more clusters lead to more precise colors and take longer to compute)
-	*							   default: 5
-	*			similarity (float) lower threshhold on difference between clusters (larger threshhold leads to shorter computation time)
-	*							   default: 0.15
-	*			resizeWidth (int)  resize image if width is larger than given value (cuts computation time)
-	* 							   default: 100
-	*			resizeHeight (int) resize image if height is larger than given value (cuts computation time)
-	* 							   default: 100
-	*			verbose (bool)     return information on clusters for each iteration
-	*							   default: false
+	*			colorsNum (int)		number of colors to retrieve
+	*						default: 5
+	*			clustersNum (int)	number of clusters to form (more clusters lead to more
+	*						precise colors and take longer to compute)
+	*						default: 5
+	*			similarity (float)	lower threshhold on difference between clusters
+	*						(larger threshhold leads to shorter computation time)
+	*						default: 0.15
+	*			resizeWidth (int)	resize image if width is larger than given value
+	*						(cuts computation time)
+	* 						default: 100
+	*			resizeHeight (int)	resize image if height is larger than given value
+	*						(cuts computation time)
+	* 						default: 100
+	*			verbose (bool)		return information on clusters for each iteration
+	*						default: false
 	*
-	* @return: not verbose: returns associative array with 'foundColors' containing found colors,
-	*		   each a hex color string with leading #, ordered by frequency
-	*          verbose: in addition, returns information on clusters for each iteration
-	* @return: false on error
+	* @return: not verbose:	returns associative array with 'foundColors' containing found colors,
+	*			each a hex color string with leading #, ordered by frequency
+	*          verbose:	in addition, returns information on clusters for each iteration
+	* @return:		false on error
 	*
 	*
-	* example: $colors = new DominantColors('example.jpg', array('colorsNum' => 3, 'clustersNum' => 7, 'verbose' => true));
-	*		   $dominantColors = $colors->getDominantColors();
-	*		   if (false !== $dominantColors) {
-	*		       foreach ($dominantColors['foundColors']) {
-	*		            ...
-	*		       }
-	*		   }
+	* example:	$colors = new DominantColors('example.jpg', array('colorsNum' => 3, 'clustersNum' => 7, 'verbose' => true));
+	*		$dominantColors = $colors->getDominantColors();
+	*		if (false !== $dominantColors) {
+	*			foreach ($dominantColors['foundColors']) {
+	*				...
+	*			}
+	*		}
 	*
 **/
 
@@ -176,6 +180,8 @@ class DominantColors {
 
 		if ($image) {
 			// downscale image so we don't have to deal with as many pixels
+			// highly encouraged to do so in order to cut computation time with little
+			// if any accuracy loss
 			$size = getimagesize($this->imgPath);
 			$naturalWidth = $newWidth = $size[0];
 			$naturalHeight = $newHeight = $size[1];
@@ -216,7 +222,7 @@ class DominantColors {
 	}
 
 
-	// K-means clustering of pixels within RGB color space
+	// K-means++ clustering of pixels within RGB color space
 
 	private function kmeans($pixels) {
 		$numPixels = $this->imgWidth * $this->imgHeight;
@@ -308,10 +314,12 @@ class DominantColors {
 			// sort clusters by size
 
 			usort($clusters, function($a, $b) {
-				if (count($a[1]) == count($b[1])) {
+				$sizea = count($a[1]);
+				$sizeb = count($b[1])
+				if ($sizea == $sizeb) {
 					return 0;
 				}
-				return (count($a[1]) > count($b[1])) ? -1 : 1;
+				return ($sizea > $sizeb) ? -1 : 1;
 			});
 
 			$iteration++;
@@ -322,7 +330,8 @@ class DominantColors {
 				);
 
 			// if similarity within clusters goes below threshhold,
-			// stop and declare so far clusters as dominant colors,
+			// i.e. only little improvement between iterations,
+			// stop and declare so far clusters as dominant colors
 
 			if ($difference < $this->settings['similarity']) {
 				break;
