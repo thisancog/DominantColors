@@ -4,7 +4,7 @@
 	* DominantColor
 	*
 	* MIT License
-    * 
+	* 
 	* Copyright (c) 2017 Matthias Planitzer
 	* http://www.matthiasplanitzer.de/
 	* https://github.com/thisancog/DominantColors/
