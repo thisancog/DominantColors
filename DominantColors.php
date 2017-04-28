@@ -88,7 +88,7 @@ class DominantColors {
 	private $imgWidth;
 	private $imgHeight;
 	private $foundColors = false;
-	private $verboseResult = array();
+	private $verboseResult = array('iterations' => array());
 
 	function __construct($imgPath = '', $newSettings = array()) {
 		if (empty($imgPath)) {
@@ -131,12 +131,9 @@ class DominantColors {
 			}
 
 			$foundColors = array('foundColors' => $dominantColors);
-
-			if ($this->settings['verbose']) {
-				$this->foundColors = array_merge($foundColors, $this->verboseResult);
-			} else {
-				$this->foundColors = $foundColors;
-			}
+			if ($this->settings['verbose'])
+				$foundColors['verboseResult'] = $this->verboseResult;
+			$this->foundColors = $foundColors;
 		}
 
 		return $this->foundColors;
@@ -155,10 +152,7 @@ class DominantColors {
 				// PHP GD only sources the first frame in animated gifs
 				$image = @ImageCreateFromGIF($this->imgPath);
 				break;
-			case 'jpeg':
-				$image = @ImageCreateFromJPEG($this->imgPath);
-				break;
-			case 'jpg':
+			case ($extension == 'jpeg' || $extension == 'jpg'):
 				$image = @ImageCreateFromJPEG($this->imgPath);
 				break;
 			case 'png':
@@ -212,9 +206,9 @@ class DominantColors {
 				for ($y = 0; $y < $newHeight; $y++) {
 					$pixelValue = imagecolorat($image, $x, $y);
 					$pixels[] = array(
-						$pixelValue >> 16,		// R
-						$pixelValue >> 8 & 255,	// G
-						$pixelValue & 255		// B
+						($pixelValue >> 16) & 0xFF,		// R
+						($pixelValue >> 8) & 0xFF,		// G
+						$pixelValue & 0xFF				// B
 					);
 				}
 			}
@@ -382,9 +376,9 @@ class DominantColors {
 				$channels[2] += $colors[$i][2];
 			}
 		
-			$channels[0] = $channels[0] / $n;
-			$channels[1] = $channels[1] / $n;
-			$channels[2] = $channels[2] / $n;
+			$channels[0] /= $n;
+			$channels[1] /= $n;
+			$channels[2] /= $n;
 
 			return $channels;
 		}
@@ -428,9 +422,9 @@ class DominantColors {
 function get_dominant_colors($attachment_id = null, $settings = array()) {
 	if (function_exists('wp_get_attachment_image_url')) {
 		$dominantColors = false;
-		if (null !== $attachment_id && is_int($attachment_id)) {
+		if (null !== $attachment_id && is_numeric($attachment_id)) {
 			$image = wp_get_attachment_image_src($attachment_id, 'thumbnail');
-			$settings = (is_array($settings)) ? array_merge(array(), $settings) : array();
+			$settings = (is_array($settings)) ? $settings : array();
 			$colors = new DominantColors($image[0], $settings);
 			$dominantColors = $colors->getDominantColors();
 		}
@@ -440,6 +434,4 @@ function get_dominant_colors($attachment_id = null, $settings = array()) {
 		return "This function is a wrapper for the DominantColors class and only works within a Wordpress environment. See documentation for use outside of Wordpress.";
 	}
 }
-
-
 ?>
