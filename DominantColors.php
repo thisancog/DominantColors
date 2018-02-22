@@ -118,9 +118,10 @@ class DominantColors {
 		}
 
 		$pixels = $this->loadImage();
+
 		if (false === $pixels)
 			return false;
-
+		
 		$results = $this->kmeans($pixels);
 
 		if (count($results) > 0) {
@@ -212,7 +213,7 @@ class DominantColors {
 					);
 				}
 			}
-		} 
+		}
 
 		return $pixels;
 	}
@@ -424,8 +425,11 @@ function get_dominant_colors($attachment_id = null, $settings = array()) {
 		$dominantColors = false;
 		if (null !== $attachment_id && is_numeric($attachment_id)) {
 			$image = wp_get_attachment_image_src($attachment_id, 'thumbnail');
+			$uploads = wp_upload_dir();
+			$realpath = $uploads['basedir'] . explode('uploads', $image[0])[1];	
+
 			$settings = (is_array($settings)) ? $settings : array();
-			$colors = new DominantColors($image[0], $settings);
+			$colors = new DominantColors($realpath, $settings);
 			$dominantColors = $colors->getDominantColors();
 		}
 
